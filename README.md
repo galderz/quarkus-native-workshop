@@ -56,7 +56,7 @@ Finally, it is highly recommended pulling the following container images in adva
 in order to reduce bandwidth requirements during the workshop:
 
 ```
-docker pull quay.io/quarkus/ubi-quarkus-mandrel:21.3-java11
+docker pull quay.io/quarkus/ubi-quarkus-mandrel:22.0-java11
 docker pull registry.access.redhat.com/ubi8/ubi-minimal:8.5
 docker pull docker.io/library/neo4j:latest
 docker pull docker.io/library/fedora:35
