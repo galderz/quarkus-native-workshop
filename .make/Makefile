@@ -6,7 +6,7 @@ $(pom):
 	mvn io.quarkus.platform:quarkus-maven-plugin:$(quarkus_version):create \
 		-DprojectGroupId=org.acme \
 		-DprojectArtifactId=$(project) \
-		-Dextensions="resteasy"
+		-Dextensions="resteasy,container-image-docker"
 
 clean:
 	rm -drf $(project)
