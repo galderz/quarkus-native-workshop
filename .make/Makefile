@@ -44,7 +44,7 @@ $(pom):
 		-DprojectArtifactId=$(project) \
 		-Dextensions="resteasy,container-image-docker"
 
-info:
+info: $(pom)
 	cd $(project) && \
 	./mvnw package -DskipTests -Pnative \
 		-Dquarkus.native.additional-build-args=--native-image-info
@@ -52,13 +52,13 @@ info:
 	cat $(target)/*/reports/native_library_info_*.txt
 .PHONY: info
 
-verbose:
+verbose: $(pom)
 	cd $(project) && \
 	./mvnw package -DskipTests -Pnative \
 		-Dquarkus.native.additional-build-args=--verbose
 .PHONY: verbose
 
-combine:
+combine: $(pom)
 	cd $(project) && \
 	./mvnw package -DskipTests -Pnative \
 		-Dquarkus.native.additional-build-args=--native-image-info,--verbose
@@ -81,6 +81,12 @@ inspect: $(runner) build-tools
 	docker run -i -v $(PWD):/data --rm fedora-tools:v1 /bin/bash -c \
 		"$(ldd_cmd); $(strings_hello); $(strings_vm); $(readelf_cmd)"
 .PHONY: inspect
+
+reports: $(pom)
+	cd $(project) && \
+	./mvnw package -DskipTests -Pnative \
+		-Dquarkus.native.enable-reports
+.PHONY: reports
 
 get:
 	curl -w '\n' http://localhost:8080/hello
