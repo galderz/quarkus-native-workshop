@@ -7,3 +7,7 @@ $(pom):
 		-DprojectGroupId=org.acme \
 		-DprojectArtifactId=$(project) \
 		-Dextensions="resteasy"
+
+clean:
+	rm -drf $(project)
+.PHONY:clean
