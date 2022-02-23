@@ -50,6 +50,17 @@ combine:
 	cat $(target)/*/reports/native_library_info_*.txt
 .PHONY: combine
 
+build-tools:
+	docker build -t fedora-tools:v1 ../tools
+.PHONY: build-tools
+
+run-tools:
+	docker run --privileged -t -i --rm \
+		-v $(PWD)/debugging-native:/data \
+		-p 8080:8080 fedora-tools:v1 \
+		/bin/bash
+.PHONY: run-tools
+
 get:
 	curl -w '\n' http://localhost:8080/hello
 .PHONY: get
