@@ -42,6 +42,14 @@ verbose:
 		-Dquarkus.native.additional-build-args=--verbose
 .PHONY: verbose
 
+combine:
+	cd $(project) && \
+	./mvnw package -DskipTests -Pnative \
+		-Dquarkus.native.additional-build-args=--native-image-info,--verbose
+	cat $(target)/*/reports/target_info_*.txt
+	cat $(target)/*/reports/native_library_info_*.txt
+.PHONY: combine
+
 get:
 	curl -w '\n' http://localhost:8080/hello
 .PHONY: get
