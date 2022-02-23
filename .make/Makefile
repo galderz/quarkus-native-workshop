@@ -36,6 +36,12 @@ info:
 	cat $(target)/*/reports/native_library_info_*.txt
 .PHONY: info
 
+verbose:
+	cd $(project) && \
+	./mvnw package -DskipTests -Pnative \
+		-Dquarkus.native.additional-build-args=--verbose
+.PHONY: verbose
+
 get:
 	curl -w '\n' http://localhost:8080/hello
 .PHONY: get
