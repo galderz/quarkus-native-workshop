@@ -6,7 +6,8 @@ quarkus_version := 2.7.2.Final
 
 app_properties = $(project)/src/main/resources/application.properties
 pom = $(project)/pom.xml
-runner = $(project)/target/$(project)-1.0.0-SNAPSHOT-runner
+runner = $(target)/$(project)-1.0.0-SNAPSHOT-runner
+target = $(project)/target
 
 run: $(runner)
 	docker run -i --rm -p 8080:8080 $(group)/$(project):1.0.0-SNAPSHOT
@@ -26,6 +27,14 @@ $(pom):
 		-DprojectGroupId=org.acme \
 		-DprojectArtifactId=$(project) \
 		-Dextensions="resteasy,container-image-docker"
+
+info:
+	cd $(project) && \
+	./mvnw package -DskipTests -Pnative \
+		-Dquarkus.native.additional-build-args=--native-image-info
+	cat $(target)/*/reports/target_info_*.txt
+	cat $(target)/*/reports/native_library_info_*.txt
+.PHONY: info
 
 get:
 	curl -w '\n' http://localhost:8080/hello
