@@ -88,6 +88,16 @@ reports: $(pom)
 		-Dquarkus.native.enable-reports
 .PHONY: reports
 
+neo4j:
+	docker run \
+	--detach \
+	--rm \
+	--name testneo4j \
+	-p7474:7474 -p7687:7687 \
+	--env NEO4J_AUTH=neo4j/${NEO_PASS} \
+	neo4j:latest
+.PHONY: neo4j
+
 get:
 	curl -w '\n' http://localhost:8080/hello
 .PHONY: get
