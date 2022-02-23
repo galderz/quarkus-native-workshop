@@ -9,6 +9,22 @@ pom = $(project)/pom.xml
 runner = $(target)/$(project)-1.0.0-SNAPSHOT-runner
 target = $(project)/target
 
+ldd_cmd += ldd
+ldd_cmd += /data/$(runner)
+
+strings_cmd += strings
+strings_cmd += /data/$(runner)
+strings_cmd += |
+strings_cmd += grep
+strings_hello += $(strings_cmd)
+strings_hello += Hello
+strings_vm += $(strings_cmd)
+strings_vm += core.VM
+
+readelf_cmd += readelf
+readelf_cmd += -SW
+readelf_cmd += /data/$(runner)
+
 run: $(runner)
 	docker run -i --rm -p 8080:8080 $(group)/$(project):1.0.0-SNAPSHOT
 
@@ -60,6 +76,11 @@ run-tools:
 		-p 8080:8080 fedora-tools:v1 \
 		/bin/bash
 .PHONY: run-tools
+
+inspect: $(runner) build-tools
+	docker run -i -v $(PWD):/data --rm fedora-tools:v1 /bin/bash -c \
+		"$(ldd_cmd); $(strings_hello); $(strings_vm); $(readelf_cmd)"
+.PHONY: inspect
 
 get:
 	curl -w '\n' http://localhost:8080/hello
