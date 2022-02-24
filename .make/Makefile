@@ -6,14 +6,13 @@ quarkus_version := 2.7.2.Final
 
 app_properties = $(project)/src/main/resources/application.properties
 pom = $(project)/pom.xml
-runner = $(target)/$(project)-1.0.0-SNAPSHOT-runner
-target = $(project)/target
+runner = $(project)-1.0.0-SNAPSHOT-runner
 
 ldd_cmd += ldd
-ldd_cmd += /data/$(runner)
+ldd_cmd += /data/target/$(runner)
 
 strings_cmd += strings
-strings_cmd += /data/$(runner)
+strings_cmd += /data/target/$(runner)
 strings_cmd += |
 strings_cmd += grep
 strings_hello += $(strings_cmd)
@@ -23,7 +22,7 @@ strings_vm += core.VM
 
 readelf_cmd += readelf
 readelf_cmd += -SW
-readelf_cmd += /data/$(runner)
+readelf_cmd += /data/target/$(runner)
 
 run: $(runner)
 	docker run -i --rm -p 8080:8080 $(group)/$(project):1.0.0-SNAPSHOT
@@ -44,26 +43,26 @@ $(pom):
 		-DprojectArtifactId=$(project) \
 		-Dextensions="resteasy,container-image-docker"
 
-info: $(pom)
+info: $(app_properties)
 	cd $(project) && \
 	./mvnw package -DskipTests -Pnative \
 		-Dquarkus.native.additional-build-args=--native-image-info
-	cat $(target)/*/reports/target_info_*.txt
-	cat $(target)/*/reports/native_library_info_*.txt
+	cd $(project) && cat target/*/reports/target_info_*.txt
+	cd $(project) && cat target/*/reports/native_library_info_*.txt
 .PHONY: info
 
-verbose: $(pom)
+verbose: $(app_properties)
 	cd $(project) && \
 	./mvnw package -DskipTests -Pnative \
 		-Dquarkus.native.additional-build-args=--verbose
 .PHONY: verbose
 
-combine: $(pom)
+combine: $(app_properties)
 	cd $(project) && \
 	./mvnw package -DskipTests -Pnative \
 		-Dquarkus.native.additional-build-args=--native-image-info,--verbose
-	cat $(target)/*/reports/target_info_*.txt
-	cat $(target)/*/reports/native_library_info_*.txt
+	cd $(project) && cat target/*/reports/target_info_*.txt
+	cd $(project) && cat target/*/reports/native_library_info_*.txt
 .PHONY: combine
 
 build-tools:
@@ -72,21 +71,35 @@ build-tools:
 
 run-tools:
 	docker run --privileged -t -i --rm \
-		-v $(PWD)/debugging-native:/data \
+		-v $(PWD)/$(project):/data \
 		-p 8080:8080 fedora-tools:v1 \
 		/bin/bash
 .PHONY: run-tools
 
 inspect: $(runner) build-tools
-	docker run -i -v $(PWD):/data --rm fedora-tools:v1 /bin/bash -c \
+	docker run -i -v $(PWD)/$(project):/data --rm fedora-tools:v1 /bin/bash -c \
 		"$(ldd_cmd); $(strings_hello); $(strings_vm); $(readelf_cmd)"
 .PHONY: inspect
 
-reports: $(pom)
+reports: $(app_properties)
 	cd $(project) && \
 	./mvnw package -DskipTests -Pnative \
-		-Dquarkus.native.enable-reports
+		-Dquarkus.native.enable-reports \
+		-Dquarkus.native.additional-build-args=-H:PrintAnalysisCallTreeType=CSV
 .PHONY: reports
+
+# Workaround for https://github.com/oracle/graal/issues/4355
+fix-links:
+	docker run -i -v $(PWD)/$(project):/data --rm fedora-tools:v1 /bin/bash -c \
+		"cd target/*-native-image-source-jar/reports \
+			&& rm -f call_tree_vm.csv && ln -s call_tree_vm_$(project)-* call_tree_vm.csv \
+			&& rm -f call_tree_direct_edges.csv && ln -s call_tree_direct_edges_$(project)-* call_tree_direct_edges.csv \
+			&& rm -f call_tree_entry_points.csv && ln -s call_tree_entry_points_$(project)-* call_tree_entry_points.csv \
+			&& rm -f call_tree_methods.csv && ln -s call_tree_methods_$(project)-* call_tree_methods.csv \
+			&& rm -f call_tree_virtual_edges.csv && ln -s call_tree_virtual_edges_$(project)-* call_tree_virtual_edges.csv \
+			&& rm -f call_tree_virtual_methods.csv && ln -s call_tree_virtual_methods_$(project)-* call_tree_virtual_methods.csv \
+			&& rm -f call_tree_override_by_edges.csv && ln -s call_tree_override_by_edges_$(project)-* call_tree_override_by_edges.csv"
+.PHONY: fix-links
 
 neo4j:
 	docker run \
@@ -97,6 +110,19 @@ neo4j:
 	--env NEO4J_AUTH=neo4j/${NEO_PASS} \
 	neo4j:latest
 .PHONY: neo4j
+
+import:
+	cd $(project) && \
+	docker cp target/*-native-image-source-jar/reports testneo4j:/var/lib/neo4j/import
+	docker cp ../import.cypher testneo4j:/var/lib/neo4j
+	docker exec testneo4j bin/cypher-shell -u neo4j -p ${NEO_PASS} -f import.cypher
+.PHONY: import
+
+clean-neo4j:
+	docker exec testneo4j bin/cypher-shell -u neo4j -p $(NEO_PASS) "MATCH(n) DETACH DELETE n" || true
+	docker exec testneo4j bin/cypher-shell -u neo4j -p $(NEO_PASS) "DROP CONSTRAINT unique_vm_id" || true
+	docker exec testneo4j bin/cypher-shell -u neo4j -p $(NEO_PASS) "DROP CONSTRAINT unique_method_id" || true
+.PHONY: clean-neo4j
 
 get:
 	curl -w '\n' http://localhost:8080/hello
