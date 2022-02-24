@@ -24,9 +24,6 @@ readelf_cmd += readelf
 readelf_cmd += -SW
 readelf_cmd += /data/target/$(runner)
 
-run: $(runner)
-	docker run -i --rm -p 8080:8080 $(group)/$(project):1.0.0-SNAPSHOT
-
 $(runner): $(app_properties)
 	cd $(project) && \
 	./mvnw package -DskipTests -Pnative
@@ -42,6 +39,10 @@ $(pom):
 		-DprojectGroupId=org.acme \
 		-DprojectArtifactId=$(project) \
 		-Dextensions="resteasy,container-image-docker"
+
+run:
+	docker run -i --rm -p 8080:8080 $(group)/$(project):1.0.0-SNAPSHOT
+.PHONY: run
 
 info: $(app_properties)
 	cd $(project) && \
@@ -124,9 +125,13 @@ clean-neo4j:
 	docker exec testneo4j bin/cypher-shell -u neo4j -p $(NEO_PASS) "DROP CONSTRAINT unique_method_id" || true
 .PHONY: clean-neo4j
 
-get:
+hello:
 	curl -w '\n' http://localhost:8080/hello
-.PHONY: get
+.PHONY: hello
+
+timestamp:
+	curl -w '\n' http://localhost:8080/timestamp
+.PHONY: timestamp
 
 clean:
 	rm -drf $(project)
