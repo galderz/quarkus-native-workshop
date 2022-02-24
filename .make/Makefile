@@ -133,6 +133,10 @@ timestamp:
 	curl -w '\n' http://localhost:8080/timestamp
 .PHONY: timestamp
 
+encrypt-decrypt:
+	curl -w '\n' http://localhost:8080/encrypt-decrypt/helloworld
+.PHONY: encrypt-decrypt
+
 clean:
 	rm -drf $(project)
 .PHONY: clean
