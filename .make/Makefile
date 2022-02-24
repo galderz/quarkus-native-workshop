@@ -125,6 +125,12 @@ clean-neo4j:
 	docker exec testneo4j bin/cypher-shell -u neo4j -p $(NEO_PASS) "DROP CONSTRAINT unique_method_id" || true
 .PHONY: clean-neo4j
 
+trace-object-instantiation: $(app_properties)
+	cd $(project) && \
+	./mvnw package -DskipTests -Pnative \
+		-Dquarkus.native.additional-build-args=--trace-object-instantiation=java.security.SecureRandom
+.PHONY: trace-object-instantiation
+
 hello:
 	curl -w '\n' http://localhost:8080/hello
 .PHONY: hello
