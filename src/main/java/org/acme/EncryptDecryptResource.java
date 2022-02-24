@@ -29,6 +29,7 @@ public class EncryptDecryptResource {
     }
 
     @GET
+    @Path("/{message}")
     public String encryptDecrypt(@PathParam String message) throws Exception {
         KeyPair keyPair = KEY_PAIR_GEN.generateKeyPair();
 
