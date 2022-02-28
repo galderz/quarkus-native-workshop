@@ -145,6 +145,13 @@ symbols:
 		-Dquarkus.native.additional-build-args=-H:-DeleteLocalSymbols
 .PHONY: symbols
 
+debug:
+	cd $(project) && \
+	./mvnw package -DskipTests -Pnative \
+		-Dquarkus.native.debug.enabled \
+		-Dquarkus.native.additional-build-args=-H:-OmitInlinedMethodDebugLineInfo
+.PHONY: debug
+
 hello:
 	curl -w '\n' http://localhost:8080/hello
 .PHONY: hello
