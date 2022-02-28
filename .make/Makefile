@@ -161,6 +161,10 @@ string-builder:
 	curl http://localhost:8080/string-builder
 .PHONY: string-builder
 
+multicast:
+	curl -w '\n' http://localhost:8080/multicast
+.PHONY: multicast
+
 clean:
 	rm -drf $(project)
 .PHONY: clean
