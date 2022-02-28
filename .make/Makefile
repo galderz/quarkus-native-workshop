@@ -165,6 +165,10 @@ multicast:
 	curl -w '\n' http://localhost:8080/multicast
 .PHONY: multicast
 
+crash:
+	curl http://localhost:8080/crash
+.PHONY: crash
+
 clean:
 	rm -drf $(project)
 .PHONY: clean
