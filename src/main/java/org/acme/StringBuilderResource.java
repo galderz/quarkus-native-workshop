@@ -5,6 +5,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * Example sourced from
+ * <a href="https://github.com/apangin/java-profiling-presentation/blob/master/src/demo1/StringBuilderTest.java">Andrei Pangin's Java Profiling presentation</a>.
+ */
 @Path("/string-builder")
 public class StringBuilderResource {
 
