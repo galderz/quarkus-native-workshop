@@ -71,11 +71,18 @@ build-tools:
 .PHONY: build-tools
 
 run-tools:
-	docker run --privileged -t -i --rm \
+	docker run -t -i --rm \
 		-v $(PWD)/$(project):/data \
 		-p 8080:8080 fedora-tools:v1 \
 		/bin/bash
 .PHONY: run-tools
+
+run-tools-privileged:
+	docker run --privileged -t -i --rm \
+		-v $(PWD)/$(project):/data \
+		-p 8080:8080 fedora-tools:v1 \
+		/bin/bash
+.PHONY: run-tools-privileged
 
 inspect: $(runner) build-tools
 	docker run -i -v $(PWD)/$(project):/data --rm fedora-tools:v1 /bin/bash -c \
@@ -131,6 +138,13 @@ trace-object-instantiation: $(app_properties)
 		-Dquarkus.native.additional-build-args=--trace-object-instantiation=java.security.SecureRandom
 .PHONY: trace-object-instantiation
 
+symbols:
+	cd $(project) && \
+	./mvnw package -DskipTests -Pnative \
+		-Dquarkus.native.debug.enabled \
+		-Dquarkus.native.additional-build-args=-H:-DeleteLocalSymbols
+.PHONY: symbols
+
 hello:
 	curl -w '\n' http://localhost:8080/hello
 .PHONY: hello
@@ -142,6 +156,10 @@ timestamp:
 encrypt-decrypt:
 	curl -w '\n' http://localhost:8080/encrypt-decrypt/helloworld
 .PHONY: encrypt-decrypt
+
+string-builder:
+	curl http://localhost:8080/string-builder
+.PHONY: string-builder
 
 clean:
 	rm -drf $(project)
