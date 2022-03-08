@@ -9,7 +9,7 @@ It is strongly advised to install as much as possible prior to the workshop.
 * Git >= 1.8.3.1 advised
 * A Java IDE like Eclipse or at least a text editor like Vim
 * JDK 11 installed
-* Maven >= 3.8.1 advised, possibly with JAVA_HOME configured appropriately
+* Maven >= 3.6.2 advised, possibly with JAVA_HOME configured appropriately
 * A favorite HTTP client like curl
 * A container runtime, this could be Docker >= 1.13.1 or Podman.
 
