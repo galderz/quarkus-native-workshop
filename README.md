@@ -11,7 +11,12 @@ It is strongly advised to install as much as possible prior to the workshop.
 * JDK 11 installed
 * Maven >= 3.6.2 advised, possibly with JAVA_HOME configured appropriately
 * A favorite HTTP client like curl
-* A container runtime, this could be Docker >= 1.13.1 or Podman.
+* A container runtime.
+This could be Docker >= 1.13.1 or Podman,
+but Docker is the preferred choice.
+Building native executables is an expensive process,
+so make sure the container runtime has enough CPU and memory to do this.
+A minimum of 4 CPUs and 4GB of memory is required.
 
 Let's check whether some prerequisites are already installed on your machine, for instance like below:
 
