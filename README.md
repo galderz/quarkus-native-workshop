@@ -61,3 +61,9 @@ docker pull registry.access.redhat.com/ubi8/ubi-minimal:8.5
 docker pull docker.io/library/neo4j:latest
 docker pull docker.io/library/fedora:35
 ```
+
+## Workshop Content
+
+This workshop follows the steps laid out in the [Quarkus Native Reference Guide](https://quarkus.io/version/main/guides/native-reference).
+This repository provides all the source code, including java source code and configuration files, mentioned in the guide.
+Hence, you should go ahead and start with the [First Debugging Steps](https://quarkus.io/version/main/guides/native-reference#first-debugging-steps) section.
